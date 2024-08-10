@@ -45,7 +45,7 @@ markdown-it-py==3.0.0
 MarkupSafe==2.1.5
 matplotlib==3.9.1
 mdurl==0.1.2
-mediapipe==0.9.1  # Hạ cấp để phù hợp với protobuf < 4
+mediapipe==0.10.13  # Hoặc phiên bản mới nhất
 ml-dtypes==0.4.0
 MouseInfo==0.1.3
 mpmath==1.3.0
@@ -58,7 +58,7 @@ opt-einsum==3.3.0
 packaging==24.1
 pandas==2.2.2
 pillow==10.4.0
-protobuf==3.20.0  # Cập nhật phiên bản phù hợp với streamlit
+protobuf==3.20.0
 pyarrow==16.1.0
 PyAutoGUI==0.9.54
 pycparser==2.22
@@ -100,7 +100,7 @@ smmap==5.0.1
 sniffio==1.3.1
 sounddevice==0.4.7
 starlette==0.37.2
-streamlit==1.17.0  # Cập nhật lên phiên bản mới hơn
+streamlit==1.37.0
 streamlit-webrtc==0.47.7
 sympy==1.12.1
 tenacity==8.5.0
