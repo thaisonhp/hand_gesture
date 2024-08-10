@@ -1,4 +1,4 @@
 opencv-python==4.7.0.72
-streamlit==1.22.0
-mediapipe==0.10.13  # Phiên bản tương thích với protobuf yêu cầu của Streamlit
+streamlit==1.24.0  # Thay đổi phiên bản nếu cần
+mediapipe==0.10.14  # Thay đổi phiên bản nếu cần
 numpy==1.24.4
