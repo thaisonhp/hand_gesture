@@ -13,8 +13,77 @@ from scipy.ndimage import zoom, median_filter as medfilt
 import random
 import pyautogui
 import utils
+def add_custom_css():
+    st.markdown("""
+        <style>
+        /* Định dạng cho tiêu đề */
+        h1 {
+            font-size: 40px;
+            color: rgb(3 41 106);
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 20px;
+        }
 
+        /* Định dạng cho các nút bấm */
+        button {
+            background-color: rgb(3 41 106) !important;
+            color: white !important;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #45a049 !important;
+        }
+
+        /* Định dạng cho các hộp kiểm (checkbox) */
+        .stCheckbox label {
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Định dạng cho hình ảnh */
+        img {
+            border-radius: 15px;
+            width: 100%;
+            height: auto;
+        }
+
+        /* Định dạng cho cột trong Streamlit */
+        .css-1lcbmhc {
+            padding-top: 50px;
+        }
+
+        /* Định dạng nền tổng thể */
+        .reportview-container {
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        /* Định dạng footer */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: rgb(3 41 106);
+            color: white;
+            font-size: 14px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 def main():
+    add_custom_css()
+    image_path = 'logo.jpg'
+
+    # Hiển thị hình ảnh trên Streamlit
+    st.image(image_path, use_column_width=True)
+    st.title("Webcam Live Feed with Hand Tracking")
     col1, col2, col3 = st.columns([1, 2, 1])
     st.title("Webcam Live Feed with Hand Tracking")
 
@@ -42,13 +111,13 @@ def main():
         FRAME_WINDOW = st.image([])
         C = utils.Config()
         mp_hands = mp.solutions.hands
-        hands = mp_hands.Hands(static_image_mode=False, max_num_hands=2, min_detection_confidence=0.5, min_tracking_confidence=0.5)
+        hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1, min_detection_confidence=0.5, min_tracking_confidence=0.5)
         mp_drawing = mp.solutions.drawing_utils
 
         sequence = []
         predictions = []
         camera = cv2.VideoCapture(0)
-        
+    
         # Tạo một vùng trống để hiển thị nhãn
         prediction_placeholder = st.empty()
     with col3:
@@ -58,6 +127,7 @@ def main():
                 break
 
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame = cv2.flip(frame,1)
             results = hands.process(frame)
 
             if results.multi_hand_landmarks:
@@ -66,9 +136,9 @@ def main():
                     keypoint = np.array([[res.x, res.y, res.z] for res in hand_landmarks.landmark]).flatten()
                     keypoint = np.array_split(keypoint, 22)
                     sequence.append(keypoint)
-                    sequence = sequence[-32:]
+                    sequence = sequence[-60:]
 
-                if len(sequence) == 32:
+                if len(sequence) == 60:
                     sequence_np = np.array(sequence, dtype=object)     
                     sequence_np = utils.pad_arrays(sequence_np)
                     X_test_rt_1, X_test_rt_2 = utils.data_generator_rt(sequence_np[-32:], C)
@@ -90,27 +160,24 @@ def main():
                             if len(predictions) > 1 and predictions[-1] != predictions[-2]:
                                 # Cập nhật nhãn mới
                                 prediction_placeholder.write(f"Prediction: {predictions[-1]}")
-                                if predictions[-1] == "Grab":
+                                if predictions[-1] == "Shake":
                                     pyautogui.press('space')  # Tạm dừng video
-                                elif predictions[-1] != "SU":
-                                    pass 
-                                elif predictions[-1] == "SR":
-                                    pyautogui.press('left')
-                                elif predictions[-1] == "SL": 
-                                    pyautogui.press('right')  # Tua về s au 10 giây
-                                elif predictions[-1] == "SU":
+                                if predictions[-1] == "SR":
+                                    pyautogui.hotkey('right')
+                                if predictions[-1] == "SL": 
+                                    pyautogui.hotkey('left')  # Tua về s au 10 giây
+                                if predictions[-1] == "SU":
                                     # Tăng âm lượng
-                                    pyautogui.hotkey('volumeup')  # Bạn cần kiểm tra phím tắt cụ thể cho hệ điều hành của bạn
+                                    pyautogui.hotkey('up')  # Bạn cần kiểm tra phím tắt cụ thể cho hệ điều hành của bạn
                                 elif predictions[-1] == "SD":
                                     # Giảm âm lượng
-                                    pyautogui.hotkey('volumedown')
+                                    pyautogui.hotkey('down')
                         else:
                             st.write("Error:", response.text)
                     except Exception as e:
                         st.write(f"Request failed: {str(e)}")
             FRAME_WINDOW.image(frame)
-        else:
-            st.write("Stopped")
+    
 
         camera.release()
 
